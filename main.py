@@ -7,8 +7,9 @@ from fetch import fetch
 
 fetchapi = fetch()
 app = Flask(__name__)
-@app.route("/fetch/<path:key>")
 
+
+@app.route("/fetch/<path:key>")
 def fetch_key(key):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(current_dir, "api.json")
@@ -16,14 +17,22 @@ def fetch_key(key):
         data = json.load(file)    
     for keys in data:
         if keys == key:
+            data =fetchapi.checkKey(key)
             return fetchapi.fetch_api_data(key)
-    
+            
+@app.route("/refresh/<path:key>")
+def refresh_key(key):
+    return fetchapi.fetch_api_data(key)
+
+@app.route("/delete/<path:ket>")
+def delete_key(key):
+    models.deletekey(key)
+    return "delete data successfully "
+
     
 
 
 if __name__ == "__main__":
-
-
     app.run(debug=True)
    
     

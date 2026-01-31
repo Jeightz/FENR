@@ -11,11 +11,15 @@ class fetch():
             self.data =json.load(file)
         self.model = models()
         
-    def fetch_api_data(self,key):
+        
+    def checkKey(self,key):
         checkkey =self.model.findkey(key)
         if checkkey:
             return checkkey
+    
         
+    def fetch_api_data(self,key):
+   
         api = self.data[key]
         if not api:
             return {"Error Api": "API not found"}
@@ -25,3 +29,4 @@ class fetch():
         self.model.addkeyvalue(key,json.dumps(data))
         return data
      
+   

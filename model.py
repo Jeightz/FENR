@@ -5,6 +5,7 @@ class models():
     def __init__(self):
         self.db = Database()
         self.createtable()
+        self.autodeletekey()
 
     def checkTableExcist(self):
         try:
@@ -22,10 +23,13 @@ class models():
             if self.checkTableExcist():
                 print("table is excist")
                 return None
-            self.db.cursor.execute('''CREATE TABLE DATA(
+            self.db.cursor.execute("""
+            CREATE TABLE DATA (
                 KEY TEXT PRIMARY KEY,
-                VALUE TEXT
-                )''')
+                VALUE TEXT,
+                EXPIRES_AT DATE DEFAULT (DATE('now', '+1 day'))
+            )
+            """)
             self.db.conn.commit()
             
         except sqlite3.Error as e:
@@ -60,10 +64,25 @@ class models():
             print("unsuccessfull insert of data ")
             return False
         
-    def deletekey(self,key):
+        
+    def deletekey(self ,key):
         try:
             self.db.cursor.execute("DELETE FROM DATA WHERE KEY=?;",(key,))
             self.db.conn.commit()
+            return 
+        except sqlite3.IntegrityError as s:
+            print(f"error to delete the data {s}")
+            return None
+    
+    
+    def autodeletekey(self):
+        try:
+            print('checking data if there is an expire data')
+            self.db.cursor.execute("DELETE FROM DATA WHERE EXPIRES_AT <= Date('now') ;")
+            self.db.conn.commit()
+            deleted_count = self.db.cursor.rowcount
+            if deleted_count > 0:
+                print(f"deleted {deleted_count} expired entries")
         except sqlite3.IntegrityError as s:
             print(f"error to delete the data {s}")
             return None
